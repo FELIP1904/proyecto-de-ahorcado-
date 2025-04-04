@@ -1,0 +1,79 @@
+1. Cuota
+    ID (PK)
+    Tipo_Cuota
+    Precio
+
+2. Partida
+
+    ID_Juego (PK a Juego.ID)
+    ID_Jugador (PK a Jugador.ID)
+    ID_Frase (PK a Frase/Palabra.ID)
+    Duracion
+    Puntos
+    Resultado
+
+
+3. Juego
+
+    ID (PK)
+    Fecha
+    Hora
+    Idioma
+
+4. Jugador
+    Usuario_ID (PK a Usuario.ID)
+    Tipo_Cuota
+
+5. Usuario
+
+    ID (PK)
+    Nombre
+    Apellido1
+    Apellido2
+
+
+6. Administrador
+
+    Usuario_ID (PK a Usuario.ID)
+    Nivel
+
+
+7. Frase/Palabra
+
+    ID (PK)
+    Idioma
+    Descripción
+
+8. Idioma
+
+    ID (PK)
+    Nombre
+
+
+9. IdiomaPalabra
+
+    ID_Frase (PK a Frase/Palabra.ID)
+    ID_Idioma (PK a Idioma.ID)
+
+
+10. Histórico
+
+    ID (PK)
+    Versión
+    Idioma
+    Descripción
+
+
+11. Sinónimo
+
+    ID (PK)
+    Frase/Palabra_ID (PK a Frase/Palabra.ID)
+
+12. Gestion
+    ID_Administrador(PK a Administrador.ID)
+    ID_Frase (PK a Frase/Palabra.ID)
+    Fecha
+
+
+
+
