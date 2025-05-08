@@ -88,7 +88,10 @@ public class JuegoNuevo extends JFrame {
         
         JButton btnOk = new JButton("OK");
         btnOk.setPreferredSize(new Dimension(100, 30));
-       
+        btnOk.addActionListener(e -> {
+            dispose();
+            new jinicio(); 
+        });
         
         JButton btnCancel = new JButton("Cancelar");
         btnCancel.setPreferredSize(new Dimension(100, 30));
