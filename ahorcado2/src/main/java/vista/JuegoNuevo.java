@@ -30,7 +30,6 @@ public class JuegoNuevo extends JFrame {
         gbc.gridwidth = 2;
         add(titulo, gbc);
 
-
         JPanel tipoPanel = new JPanel(new GridLayout(1, 2, 10, 0));
         tipoPanel.setBackground(new Color(154, 227, 170));
 
@@ -38,7 +37,6 @@ public class JuegoNuevo extends JFrame {
         JRadioButton rbFrases = new JRadioButton("Frases");
         rbPalabras.setBackground(new Color(154, 227, 170));
         rbFrases.setBackground(new Color(154, 227, 170));
-        tipoPanel.setBackground(new Color(154, 227, 170));
 
         ButtonGroup tipoGroup = new ButtonGroup();
         tipoGroup.add(rbPalabras);
@@ -52,7 +50,6 @@ public class JuegoNuevo extends JFrame {
         gbc.gridy = 1;
         gbc.gridwidth = 2;
         add(tipoPanel, gbc);
-
 
         JLabel lblJugadores = new JLabel("Número de jugadores:");
         gbc.gridx = 0;
@@ -71,20 +68,43 @@ public class JuegoNuevo extends JFrame {
         gbc.gridy = 3;
         add(lblIdioma, gbc);
 
-        cbIdioma = new JComboBox<>(new String[]{"Español", "Inglés", "Francés", "Alemán", "Italiano"});
+        try {
+            ConexionBD conexionBD = new ConexionBD();
+            Connection conexion = conexionBD.getConnection();
+            PalabraDAO palabraDAO = new PalabraDAO(conexion);
+            List<String> idiomas = palabraDAO.obtenerIdiomas();
+            cbIdioma = new JComboBox<>(idiomas.toArray(new String[0]));
+        } catch (Exception e) {
+            e.printStackTrace();
+            cbIdioma = new JComboBox<>(new String[]{"Español"}); // Fallback
+        }
+
         gbc.gridx = 1;
         gbc.gridy = 3;
         add(cbIdioma, gbc);
 
-        // Selector de categoría
+        // Selector de categoría (dinámico)
         JLabel lblCategoria = new JLabel("Categoría:");
         gbc.gridx = 0;
         gbc.gridy = 4;
         add(lblCategoria, gbc);
 
-        cbCategoria = new JComboBox<>(new String[]{"Animales", "Comida", "Países", "Tecnología", "Deportes", "Objetos cotidianos"});
-        cbCategoria.insertItemAt("Todas las categorías", 0);
-        cbCategoria.setSelectedIndex(0);
+        try {
+            ConexionBD conexionBD = new ConexionBD();
+            Connection conexion = conexionBD.getConnection();
+            PalabraDAO palabraDAO = new PalabraDAO(conexion);
+            List<String> categorias = palabraDAO.obtenerCategorias();
+            cbCategoria = new JComboBox<>();
+            cbCategoria.addItem("Todas las categorías");
+            for (String cat : categorias) {
+                cbCategoria.addItem(cat);
+            }
+            cbCategoria.setSelectedIndex(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            cbCategoria = new JComboBox<>(new String[]{"Todas las categorías"});
+        }
+
         gbc.gridx = 1;
         gbc.gridy = 4;
         add(cbCategoria, gbc);
@@ -118,7 +138,6 @@ public class JuegoNuevo extends JFrame {
             dispose();
 
             if (jugadores == 1) {
-
                 String palabra = obtenerPalabraAleatoria(idioma,
                         categoria.equals("Todas las categorías") ? null : categoria,
                         dificultad.equals("Todas las dificultades") ? null : dificultad,
@@ -133,7 +152,6 @@ public class JuegoNuevo extends JFrame {
                     new JuegoNuevo();
                 }
             } else {
-
                 new jinicio(true);
             }
         });

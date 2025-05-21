@@ -71,4 +71,34 @@ public class PalabraDAO {
         }
         return -1;
     }
+
+    // Método para obtener lista de idiomas
+    public List<String> obtenerIdiomas() {
+        List<String> idiomas = new ArrayList<>();
+        String sql = "SELECT nombre FROM idiomas";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                idiomas.add(rs.getString("nombre"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return idiomas;
+    }
+
+    // Método para obtener lista de categorías
+    public List<String> obtenerCategorias() {
+        List<String> categorias = new ArrayList<>();
+        String sql = "SELECT nombre FROM categorias";
+        try (PreparedStatement stmt = conexion.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                categorias.add(rs.getString("nombre"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return categorias;
+    }
 }

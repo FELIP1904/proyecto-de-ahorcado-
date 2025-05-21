@@ -9,6 +9,9 @@ import java.nio.file.StandardCopyOption;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
 import modelo.ConexionBD;
 
 public class administrador extends JFrame {
@@ -37,28 +40,36 @@ public class administrador extends JFrame {
         gbc.gridy = 1;
         add(btnBackup, gbc);
 
-        JButton btnEditFrases = new JButton("Edición de frases y letras");
-        btnEditFrases.setPreferredSize(new Dimension(500, 50));
-        btnEditFrases.setFont(new Font("Arial", Font.BOLD, 20));
+
+        JButton btnAgregarFrases = new JButton("Agregar frases y palabras");
+        btnAgregarFrases.setPreferredSize(new Dimension(500, 50));
+        btnAgregarFrases.setFont(new Font("Arial", Font.BOLD, 20));
         gbc.gridy = 2;
-        add(btnEditFrases, gbc);
+        add(btnAgregarFrases, gbc);
+
+        JButton btnAddCategoria = new JButton("Agregar nueva categoría");
+        btnAddCategoria.setPreferredSize(new Dimension(500, 50));
+        btnAddCategoria.setFont(new Font("Arial", Font.BOLD, 20));
+        gbc.gridy = 3;
+        add(btnAddCategoria, gbc);
+        gbc.gridy = 4; // Mover el resto hacia abajo
 
         JButton btnEditIdioma = new JButton("Edición de idioma");
         btnEditIdioma.setPreferredSize(new Dimension(500, 50));
         btnEditIdioma.setFont(new Font("Arial", Font.BOLD, 20));
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         add(btnEditIdioma, gbc);
 
         JButton btnAddAdmin = new JButton("Agregar nuevo administrador");
         btnAddAdmin.setPreferredSize(new Dimension(500, 50));
         btnAddAdmin.setFont(new Font("Arial", Font.BOLD, 20));
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         add(btnAddAdmin, gbc);
 
         JButton btnCerrarSesion = new JButton("Cerrar sesión");
         btnCerrarSesion.setPreferredSize(new Dimension(500, 50));
         btnCerrarSesion.setFont(new Font("Arial", Font.BOLD, 20));
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         add(btnCerrarSesion, gbc);
 
         // Función para el botón de Copia de seguridad
@@ -99,7 +110,7 @@ public class administrador extends JFrame {
         });
 
 
-        btnEditFrases.addActionListener(e -> {
+        btnAgregarFrases.addActionListener(e -> {
             new EditorFrasesWindow();
         });
 
@@ -159,6 +170,40 @@ public class administrador extends JFrame {
                             "Debe completar todos los campos",
                             "Error",
                             JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        });
+
+        btnAddCategoria.addActionListener(e -> {
+            JTextField nombreField = new JTextField();
+
+            Object[] mensaje = {
+                    "Nombre de la nueva categoría:", nombreField
+            };
+
+            int opcion = JOptionPane.showConfirmDialog(
+                    this,
+                    mensaje,
+                    "Agregar categoría",
+                    JOptionPane.OK_CANCEL_OPTION
+            );
+
+            if (opcion == JOptionPane.OK_OPTION) {
+                String nombreCategoria = nombreField.getText().trim();
+                if (!nombreCategoria.isEmpty()) {
+                    ConexionBD conexion = new ConexionBD();
+                    try {
+                        String sql = "INSERT INTO categorias (nombre) VALUES (?)";
+                        PreparedStatement stmt = conexion.getConnection().prepareStatement(sql);
+                        stmt.setString(1, nombreCategoria);
+                        stmt.executeUpdate();
+                        JOptionPane.showMessageDialog(this, "Categoría agregada correctamente.");
+                    } catch (SQLException ex) {
+                        JOptionPane.showMessageDialog(this, "Error al agregar la categoría:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "El nombre de la categoría no puede estar vacío.", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 }
             }
         });
@@ -350,45 +395,101 @@ public class administrador extends JFrame {
 
     private static class EditorFrasesWindow extends JFrame {
         private JTextArea textArea;
+        private JComboBox<String> idiomaComboBox;
+        private JComboBox<String> categoriaComboBox;
+        private JComboBox<String> dificultadComboBox;
+        private JComboBox<String> tipoContenidoComboBox;
+        private Map<String, Integer> idiomasMap = new HashMap<>();
+        private Map<String, Integer> categoriasMap = new HashMap<>();
 
         public EditorFrasesWindow() {
-            setTitle("Editor de Frases y Letras");
-            setSize(600, 400);
+            setTitle("Agregar Contenido - Administrador");
+            setSize(700, 650);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             setLocationRelativeTo(null);
+            setLayout(new BorderLayout());
 
-            textArea = new JTextArea(cargarFrases());
+            // Panel superior para los controles de selección
+            JPanel panelSuperior = new JPanel(new GridLayout(4, 2, 5, 5));
+            panelSuperior.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+            // Selector de idioma
+            panelSuperior.add(new JLabel("Idioma:"));
+            idiomaComboBox = new JComboBox<>();
+            cargarIdiomas();
+            panelSuperior.add(idiomaComboBox);
+
+            // Selector de tipo de contenido
+            panelSuperior.add(new JLabel("Tipo de contenido:"));
+            tipoContenidoComboBox = new JComboBox<>(new String[]{"Palabra", "Frase"});
+            panelSuperior.add(tipoContenidoComboBox);
+
+            // Selector de categoría
+            panelSuperior.add(new JLabel("Categoría:"));
+            categoriaComboBox = new JComboBox<>();
+            cargarCategorias();
+            panelSuperior.add(categoriaComboBox);
+
+            // Selector de dificultad
+            panelSuperior.add(new JLabel("Nivel de dificultad:"));
+            dificultadComboBox = new JComboBox<>(new String[]{"Fácil", "Medio", "Difícil"});
+            panelSuperior.add(dificultadComboBox);
+
+            add(panelSuperior, BorderLayout.NORTH);
+
+            // Área de texto para el contenido
+            textArea = new JTextArea();
+            textArea.setLineWrap(true);
+            textArea.setWrapStyleWord(true);
             JScrollPane scrollPane = new JScrollPane(textArea);
             add(scrollPane, BorderLayout.CENTER);
 
-            JButton btnGuardar = new JButton("Guardar cambios");
+            // Panel de instrucciones
+            JPanel panelInstrucciones = new JPanel();
+            panelInstrucciones.setLayout(new BoxLayout(panelInstrucciones, BoxLayout.Y_AXIS));
+            panelInstrucciones.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+            JLabel lblInstrucciones = new JLabel("<html><b>Instrucciones:</b><br>"
+                    + "- Ingrese un elemento por línea<br>"
+                    + "- Palabras: una sola palabra sin espacios<br>"
+                    + "- Frases: deben tener al menos 3 palabras</html>");
+            panelInstrucciones.add(lblInstrucciones);
+
+            add(panelInstrucciones, BorderLayout.SOUTH);
+
+            // Panel inferior con botón de guardar
+            JPanel panelInferior = new JPanel();
+            JButton btnGuardar = new JButton("Guardar contenido");
             btnGuardar.addActionListener(e -> {
-                if (guardarFrases(textArea.getText())) {
-                    JOptionPane.showMessageDialog(this, "Cambios guardados exitosamente.");
+                if (guardarContenido(textArea.getText())) {
+                    JOptionPane.showMessageDialog(this, "Contenido agregado exitosamente.");
                     dispose();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Error al guardar los cambios.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Error al agregar contenido.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
             });
+            panelInferior.add(btnGuardar);
+            add(panelInferior, BorderLayout.SOUTH);
 
-            add(btnGuardar, BorderLayout.SOUTH);
             setVisible(true);
         }
 
-        private String cargarFrases() {
-            StringBuilder sb = new StringBuilder();
+        private void cargarIdiomas() {
             ConexionBD conexion = new ConexionBD();
             try {
-                String sql = "SELECT contenido FROM palabras WHERE tipo IN ('palabra', 'frase')";
+                String sql = "SELECT id_idioma, nombre FROM idiomas ORDER BY nombre";
                 PreparedStatement stmt = conexion.getConnection().prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery();
 
+                idiomaComboBox.addItem("Seleccione un idioma");
                 while (rs.next()) {
-                    sb.append(rs.getString("contenido")).append("\n");
+                    String nombreIdioma = rs.getString("nombre");
+                    idiomasMap.put(nombreIdioma, rs.getInt("id_idioma"));
+                    idiomaComboBox.addItem(nombreIdioma);
                 }
             } catch (SQLException ex) {
                 ex.printStackTrace();
-                return "Error al cargar las frases y palabras";
+                JOptionPane.showMessageDialog(this, "Error al cargar idiomas", "Error", JOptionPane.ERROR_MESSAGE);
             } finally {
                 try {
                     if (conexion.getConnection() != null) conexion.getConnection().close();
@@ -396,30 +497,85 @@ public class administrador extends JFrame {
                     ex.printStackTrace();
                 }
             }
-            return sb.toString();
         }
 
-        private boolean guardarFrases(String frases) {
+        private void cargarCategorias() {
             ConexionBD conexion = new ConexionBD();
             try {
+                String sql = "SELECT id_categoria, nombre FROM categorias ORDER BY nombre";
+                PreparedStatement stmt = conexion.getConnection().prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
 
-                String deleteSql = "DELETE FROM palabras WHERE tipo IN ('palabra', 'frase')";
-                PreparedStatement deleteStmt = conexion.getConnection().prepareStatement(deleteSql);
-                deleteStmt.executeUpdate();
+                categoriaComboBox.addItem("Seleccione una categoría");
+                while (rs.next()) {
+                    String nombreCategoria = rs.getString("nombre");
+                    categoriasMap.put(nombreCategoria, rs.getInt("id_categoria"));
+                    categoriaComboBox.addItem(nombreCategoria);
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error al cargar categorías", "Error", JOptionPane.ERROR_MESSAGE);
+            } finally {
+                try {
+                    if (conexion.getConnection() != null) conexion.getConnection().close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
 
+        private boolean guardarContenido(String contenido) {
+            // Validar selección de idioma
+            if (idiomaComboBox.getSelectedIndex() <= 0) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar un idioma", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
 
-                String[] lineas = frases.split("\\r?\\n");
-                String insertSql = "INSERT INTO palabras (contenido, tipo, id_idioma) VALUES (?, 'palabra', 1)"; // idioma español predeterminado
+            // Validar selección de categoría
+            if (categoriaComboBox.getSelectedIndex() <= 0) {
+                JOptionPane.showMessageDialog(this, "Debe seleccionar una categoría", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+
+            // Obtener IDs seleccionados
+            String idiomaSeleccionado = (String) idiomaComboBox.getSelectedItem();
+            int idIdioma = idiomasMap.get(idiomaSeleccionado);
+
+            String categoriaSeleccionada = (String) categoriaComboBox.getSelectedItem();
+            int idCategoria = categoriasMap.get(categoriaSeleccionada);
+
+            // Obtener tipo de contenido seleccionado
+            String tipoContenido = (String) tipoContenidoComboBox.getSelectedItem();
+            String tipoBD = tipoContenido.equalsIgnoreCase("Palabra") ? "palabra" : "frase";
+
+            // Obtener nivel de dificultad seleccionado
+            String dificultad = (String) dificultadComboBox.getSelectedItem();
+            int nivelDificultad = convertirDificultadANumero(dificultad);
+
+            // Validar contenido según el tipo
+            String[] lineas = contenido.split("\\r?\\n");
+            if (!validarContenidoSegunTipo(lineas, tipoContenido)) {
+                return false;
+            }
+
+            ConexionBD conexion = new ConexionBD();
+            try {
+                String insertSql = "INSERT INTO palabras (contenido, tipo, id_idioma, id_categoria, dificultad) VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement insertStmt = conexion.getConnection().prepareStatement(insertSql);
 
                 for (String linea : lineas) {
                     if (linea.trim().isEmpty()) continue;
                     insertStmt.setString(1, linea.trim());
+                    insertStmt.setString(2, tipoBD);
+                    insertStmt.setInt(3, idIdioma);
+                    insertStmt.setInt(4, idCategoria);
+                    insertStmt.setInt(5, nivelDificultad);
                     insertStmt.executeUpdate();
                 }
                 return true;
             } catch (SQLException ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error de base de datos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 return false;
             } finally {
                 try {
@@ -429,6 +585,49 @@ public class administrador extends JFrame {
                 }
             }
         }
+
+        private boolean validarContenidoSegunTipo(String[] lineas, String tipoContenido) {
+            for (String linea : lineas) {
+                if (linea.trim().isEmpty()) continue;
+
+                if (tipoContenido.equals("Palabra")) {
+                    if (linea.trim().contains(" ")) {
+                        JOptionPane.showMessageDialog(this,
+                                "Error: '" + linea.trim() + "' no es una palabra válida.\n" +
+                                        "Las palabras no deben contener espacios.",
+                                "Error de validación",
+                                JOptionPane.ERROR_MESSAGE);
+                        return false;
+                    }
+                } else { // Frase
+                    int countPalabras = linea.trim().split("\\s+").length;
+                    if (countPalabras < 3) {
+                        JOptionPane.showMessageDialog(this,
+                                "Error: '" + linea.trim() + "' no es una frase válida.\n" +
+                                        "Las frases deben tener al menos 3 palabras.",
+                                "Error de validación",
+                                JOptionPane.ERROR_MESSAGE);
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private int convertirDificultadANumero(String dificultad) {
+            switch (dificultad) {
+                case "Fácil":
+                    return 1;
+                case "Medio":
+                    return 2;
+                case "Difícil":
+                    return 3;
+                default:
+                    return 1; // Por defecto fácil
+            }
+        }
     }
 }
+
+
 
