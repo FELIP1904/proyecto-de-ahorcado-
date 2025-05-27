@@ -18,7 +18,7 @@ public class RankingVista extends JFrame {
         RankingDAO rankingDAO = new RankingDAO(conexionBD.getConnection());
         List<Ranking> ranking = rankingDAO.obtenerRanking();
 
-        // Crear modelo de tabla
+     
         String[] columnNames = {"Posición", "Usuario", "Puntuación", "Partidas Ganadas", "Partidas Jugadas", "% Victorias"};
         Object[][] data = new Object[ranking.size()][6];
 

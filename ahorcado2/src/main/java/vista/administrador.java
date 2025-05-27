@@ -88,7 +88,7 @@ public class administrador extends JFrame {
                 String password = "abcd1234";
                 String dbName = "ahorcado_db";
 
-                // Comando mysqldump
+
                 String command = String.format("mysqldump -u%s -p%s %s", username, password, dbName);
 
                 try {
@@ -623,7 +623,7 @@ public class administrador extends JFrame {
                 case "Difícil":
                     return 3;
                 default:
-                    return 1; // Por defecto fácil
+                    return 1; 
             }
         }
     }
