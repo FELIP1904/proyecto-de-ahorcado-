@@ -5,12 +5,42 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Clase que representa la ventana de inicio para el juego del ahorcado.
+ * Permite al jugador ingresar la palabra secreta que se debe adivinar.
+ * Soporta modo de un jugador y modo de dos jugadores.
+ *
+ * @author [Nombre del autor]
+ * @version 1.0
+ */
 public class jinicio extends JFrame {
+    /**
+     * Campo de texto para ingresar la palabra secreta visiblemente en modo un jugador.
+     */
     private JTextField campoPalabra;
+
+    /**
+     * Campo de contraseña para ingresar la palabra secreta de forma oculta en modo dos jugadores.
+     */
     private JPasswordField campoPassword;
+
+    /**
+     * Botón para iniciar el juego después de validar la palabra ingresada.
+     */
     private JButton botonIniciar;
+
+    /**
+     * Indica si el juego está en modo dos jugadores (true) o un jugador (false).
+     */
     private boolean modoDosJugadores;
 
+    /**
+     * Constructor que inicializa la ventana de inicio del juego.
+     * Configura la interfaz gráfica según el modo de juego seleccionado.
+     *
+     * @param modoDosJugadores true para modo dos jugadores (oculta la palabra),
+     *                         false para modo un jugador (muestra la palabra)
+     */
     public jinicio(boolean modoDosJugadores) {
         this.modoDosJugadores = modoDosJugadores;
         setTitle(modoDosJugadores ? "Jugador 1: Introduce la palabra" : "Inicio del Ahorcado");
@@ -33,13 +63,11 @@ public class jinicio extends JFrame {
         panel.add(instruccion, gbc);
 
         if (modoDosJugadores) {
-
             campoPassword = new JPasswordField(15);
             campoPassword.setEchoChar('*');
             gbc.gridy = 1;
             panel.add(campoPassword, gbc);
         } else {
-
             campoPalabra = new JTextField(15);
             gbc.gridy = 1;
             panel.add(campoPalabra, gbc);
@@ -67,7 +95,18 @@ public class jinicio extends JFrame {
 
         add(panel);
 
+        /**
+         * Manejador de eventos para el botón de iniciar juego.
+         * Valida la palabra ingresada y procede a iniciar el juego principal.
+         */
         botonIniciar.addActionListener(new ActionListener() {
+            /**
+             * Método invocado cuando se presiona el botón de iniciar juego.
+             * Obtiene la palabra secreta, valida que no esté vacía y abre la ventana del juego.
+             *
+             * @param e El evento de acción generado al hacer clic en el botón
+             */
+            @Override
             public void actionPerformed(ActionEvent e) {
                 String palabra;
                 if (modoDosJugadores) {

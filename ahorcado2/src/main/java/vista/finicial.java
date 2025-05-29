@@ -1,11 +1,20 @@
 package vista;
+
 import java.awt.*;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-public class finicial extends JFrame{
+/**
+ * Ventana principal de la aplicación Ahorcado que muestra el menú inicial
+ * con opciones para iniciar sesión, registrarse, ver la base del juego o salir.
+ */
+public class finicial extends JFrame {
 
+    /**
+     * Constructor que configura y muestra la ventana principal con botones
+     * para navegar entre las diferentes opciones de la aplicación.
+     */
     public finicial() {
         setTitle("Ahorcado");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -23,7 +32,6 @@ public class finicial extends JFrame{
         titulo.setFont(new Font("Arial", Font.BOLD, 80));
         gbc.gridy = 0;
         add(titulo, gbc);
-
 
         JButton btnIniciarSesion = new JButton("Iniciar sesión");
         btnIniciarSesion.setPreferredSize(new Dimension(250, 50));
@@ -52,7 +60,6 @@ public class finicial extends JFrame{
             new Basejuego();
         });
 
-
         JButton btnsalir = new JButton("Salir");
         btnsalir.setPreferredSize(new Dimension(250, 50));
         btnsalir.setFont(new Font("Arial", Font.BOLD, 20));
@@ -63,7 +70,5 @@ public class finicial extends JFrame{
         });
 
         setVisible(true);
-
-
     }
 }

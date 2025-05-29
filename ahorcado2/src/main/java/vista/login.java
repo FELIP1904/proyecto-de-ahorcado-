@@ -10,10 +10,20 @@ import modelo.ConexionBD;
 import modelo.Sesion;
 import modelo.Usuario;
 
+/**
+ * Clase que representa la ventana de inicio de sesión del juego Ahorcado.
+ * Permite al usuario ingresar sus credenciales para acceder al sistema.
+ * Si el usuario es administrador, se abrirá la interfaz de administrador,
+ * de lo contrario, se abrirá el menú principal.
+ */
 public class login extends JFrame {
     private JTextField txtUsuario;
     private JPasswordField txtPassword;
 
+    /**
+     * Constructor que inicializa la ventana de inicio de sesión
+     * con los campos, botones y funcionalidades necesarias.
+     */
     public login() {
         setTitle("Ahorcado - Iniciar Sesión");
         setSize(800, 600);
@@ -74,7 +84,6 @@ public class login extends JFrame {
                 Sesion.iniciarSesion(usuarioAutenticado);
                 dispose();
 
-
                 if (usuarioAutenticado.esAdministrador()) {
                     new administrador();
                 } else {
@@ -84,11 +93,7 @@ public class login extends JFrame {
                 JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos",
                         "Error de autenticación", JOptionPane.ERROR_MESSAGE);
             }
-
         });
-
-
-
 
         gbc.gridy = 5;
         JButton btnCancelar = new JButton("Cancelar");
@@ -100,6 +105,16 @@ public class login extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * Valida las credenciales del usuario contra la base de datos.
+     * Este método realiza una consulta directa concatenando los parámetros,
+     * lo que no es seguro frente a ataques de inyección SQL.
+     * Se recomienda usar {@link #autenticarUsuario(String, String)} que usa consultas preparadas.
+     *
+     * @param usuario Nombre de usuario a validar.
+     * @param password Contraseña asociada al usuario.
+     * @return true si las credenciales son válidas, false en caso contrario.
+     */
     private boolean validarCredenciales(String usuario, String password) {
         ConexionBD conexion = new ConexionBD();
         try {
@@ -112,10 +127,18 @@ public class login extends JFrame {
             return false;
         }
     }
+
+    /**
+     * Autentica al usuario usando una consulta preparada para mayor seguridad
+     * y retorna un objeto {@link Usuario} con la información si la autenticación es exitosa.
+     *
+     * @param usuario Nombre de usuario.
+     * @param password Contraseña del usuario.
+     * @return Un objeto {@link Usuario} si la autenticación es correcta, null en caso contrario.
+     */
     private Usuario autenticarUsuario(String usuario, String password) {
         ConexionBD conexion = new ConexionBD();
         try {
-
             String query = "SELECT u.id_usuario, u.username, u.tipo_cuenta " +
                     "FROM usuarios u " +
                     "LEFT JOIN administradores a ON u.id_usuario = a.id_admin " +
@@ -127,7 +150,6 @@ public class login extends JFrame {
 
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-
                 Usuario user = new Usuario(rs.getInt("id_usuario"), rs.getString("username"));
                 user.setTipoCuenta(rs.getString("tipo_cuenta"));
                 return user;

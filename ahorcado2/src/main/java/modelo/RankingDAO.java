@@ -4,13 +4,31 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * La clase {@code RankingDAO} se encarga de gestionar el acceso a los datos
+ * del ranking de jugadores en la base de datos.
+ */
 public class RankingDAO {
     private Connection conexion;
 
+    /**
+     * Crea un nuevo DAO de ranking utilizando la conexión proporcionada.
+     *
+     * @param conexion la conexión activa a la base de datos.
+     */
     public RankingDAO(Connection conexion) {
         this.conexion = conexion;
     }
 
+    /**
+     * Actualiza el ranking del usuario en función del resultado de la partida.
+     * Si el usuario no tiene un registro en la tabla {@code ranking}, se crea uno nuevo.
+     * Si ya existe, se actualiza la puntuación, partidas ganadas y jugadas.
+     *
+     * @param idUsuario     el ID del usuario.
+     * @param partidaGanada indica si el usuario ganó la partida.
+     * @return {@code true} si se insertó o actualizó correctamente, {@code false} en caso de error.
+     */
     public boolean actualizarRanking(int idUsuario, boolean partidaGanada) {
         String sqlSelect = "SELECT * FROM ranking WHERE id_usuario = ?";
         String sqlInsert = "INSERT INTO ranking (id_usuario, puntuacion, partidas_ganadas, partidas_jugadas) VALUES (?, ?, ?, ?)";
@@ -23,11 +41,10 @@ public class RankingDAO {
             ResultSet rs = pstmtSelect.executeQuery();
 
             if (rs.next()) {
-
+                // Usuario existente: actualizar datos
                 int puntuacionActual = rs.getInt("puntuacion");
                 int partidasGanadas = rs.getInt("partidas_ganadas");
                 int partidasJugadas = rs.getInt("partidas_jugadas");
-
 
                 int nuevaPuntuacion = puntuacionActual + (partidaGanada ? 10 : 0);
                 int nuevasGanadas = partidasGanadas + (partidaGanada ? 1 : 0);
@@ -41,7 +58,7 @@ public class RankingDAO {
 
                 return pstmtUpdate.executeUpdate() > 0;
             } else {
-
+                // Usuario nuevo: insertar registro
                 PreparedStatement pstmtInsert = conexion.prepareStatement(sqlInsert);
                 pstmtInsert.setInt(1, idUsuario);
                 pstmtInsert.setInt(2, partidaGanada ? 10 : 0);
@@ -56,6 +73,11 @@ public class RankingDAO {
         }
     }
 
+    /**
+     * Obtiene una lista de los 10 mejores jugadores ordenados por puntuación descendente.
+     *
+     * @return una lista de objetos {@link Ranking} representando el top 10 del ranking.
+     */
     public List<Ranking> obtenerRanking() {
         List<Ranking> ranking = new ArrayList<>();
         String sql = "SELECT u.username, r.puntuacion, r.partidas_ganadas, r.partidas_jugadas " +

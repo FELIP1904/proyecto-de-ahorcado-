@@ -2,14 +2,22 @@ package vista;
 
 import java.awt.*;
 import javax.swing.*;
-import java.sql.*;
 import modelo.ConexionBD;
 
+/**
+ * Ventana para el registro de nuevos usuarios en el sistema.
+ * Permite ingresar datos personales, credenciales y tipo de cuenta.
+ */
 public class Registrase extends JFrame {
+
     private JTextField txtNombre, txtApellido, txtEmail, txtUsername;
     private JPasswordField txtPassword, txtConfirmar;
     private JRadioButton normal, premium;
 
+    /**
+     * Constructor que inicializa la interfaz gráfica del formulario de registro.
+     * Configura los campos, botones y sus acciones.
+     */
     public Registrase() {
         setTitle("Registro");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -119,8 +127,12 @@ public class Registrase extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * Valida que todos los campos estén completos y que las contraseñas coincidan.
+     *
+     * @return true si la validación es correcta, false en caso contrario.
+     */
     private boolean validarCampos() {
-
         if (txtNombre.getText().isEmpty() || txtApellido.getText().isEmpty() ||
                 txtEmail.getText().isEmpty() || txtUsername.getText().isEmpty() ||
                 txtPassword.getPassword().length == 0 || txtConfirmar.getPassword().length == 0) {
@@ -128,7 +140,6 @@ public class Registrase extends JFrame {
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
-
 
         if (!new String(txtPassword.getPassword()).equals(new String(txtConfirmar.getPassword()))) {
             JOptionPane.showMessageDialog(this, "Las contraseñas no coinciden",
@@ -139,6 +150,11 @@ public class Registrase extends JFrame {
         return true;
     }
 
+    /**
+     * Inserta un nuevo usuario en la base de datos con los datos del formulario.
+     *
+     * @return true si el registro fue exitoso, false en caso de error.
+     */
     private boolean registrarUsuario() {
         ConexionBD conexion = new ConexionBD();
         try {
