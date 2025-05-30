@@ -10,8 +10,6 @@ import java.awt.event.ActionListener;
  * Permite al jugador ingresar la palabra secreta que se debe adivinar.
  * Soporta modo de un jugador y modo de dos jugadores.
  *
- * @author [Nombre del autor]
- * @version 1.0
  */
 public class jinicio extends JFrame {
     /**
